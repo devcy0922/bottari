@@ -1,19 +1,10 @@
-FROM node:22-alpine AS deps
+FROM node:22-alpine
 RUN corepack enable
 WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json ./
 RUN pnpm install --no-frozen-lockfile
-FROM node:22-alpine AS builder
-RUN corepack enable
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm build
-FROM node:22-alpine AS runner
-WORKDIR /app
+RUN pnpm db:generate && pnpm build
 ENV NODE_ENV=production
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
-CMD ["node","server.js"]
+CMD ["pnpm","start"]

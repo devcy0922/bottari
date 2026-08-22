@@ -23,6 +23,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "npx prisma db push && npx prisma db seed && node server.js"
+    command: sh -c "pnpm db:push && pnpm db:seed && pnpm start"
 volumes:
   bottari-db:
