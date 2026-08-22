@@ -1,103 +1,139 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
 
-enum ProjectStatus { DRAFT RECRUITING PAUSED COMPLETED CANCELLED }
-enum ParticipationStatus { STARTED SUBMITTED APPROVED REJECTED REWARDED }
-enum RewardStatus { PENDING APPROVED }
-enum LedgerType { RESEARCHER_PAYMENT PROJECT_BUDGET RESPONDENT_REWARD PLATFORM_FEE PROCESSING_COST WITHDRAWAL ADJUSTMENT }
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-enum LedgerDirection { CREDIT DEBIT }
+enum ProjectStatus {
+  DRAFT
+  RECRUITING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipationStatus {
+  STARTED
+  SUBMITTED
+  APPROVED
+  REJECTED
+  REWARDED
+}
+
+enum RewardStatus {
+  PENDING
+  APPROVED
+}
+
+enum LedgerType {
+  RESEARCHER_PAYMENT
+  PROJECT_BUDGET
+  RESPONDENT_REWARD
+  PLATFORM_FEE
+  PROCESSING_COST
+  WITHDRAWAL
+  ADJUSTMENT
+}
+
+enum LedgerDirection {
+  CREDIT
+  DEBIT
+}
 
 model Researcher {
-  id String @id @default(cuid())
-  name String
-  projects SurveyProject[]
-  createdAt DateTime @default(now())
+  id        String          @id @default(cuid())
+  name      String
+  projects  SurveyProject[]
+  createdAt DateTime        @default(now())
 }
 
 model Respondent {
-  id String @id @default(cuid())
-  name String
-  verified Boolean @default(false)
-  age Int
-  region String
+  id             String          @id @default(cuid())
+  name           String
+  verified       Boolean         @default(false)
+  age            Int
+  region         String
   participations Participation[]
-  rewards Reward[]
-  ledgerEntries LedgerEntry[]
-  createdAt DateTime @default(now())
+  rewards        Reward[]
+  ledgerEntries  LedgerEntry[]
+  createdAt      DateTime        @default(now())
 }
 
 model SurveyProject {
-  id String @id @default(cuid())
-  researcherId String
-  researcher Researcher @relation(fields:[researcherId], references:[id])
-  title String
-  surveyUrl String
-  minAge Int
-  maxAge Int
-  region String?
-  targetRespondents Int
-  estimatedMinutes Int
-  rewardPerResponse Int
-  rewardPool Int
-  platformFee Int
-  processingCost Int
-  totalCost Int
-  payoutRatio Float
-  status ProjectStatus @default(DRAFT)
-  participations Participation[]
-  payments Payment[]
-  ledgerEntries LedgerEntry[]
-  createdAt DateTime @default(now())
+  id                 String          @id @default(cuid())
+  researcherId       String
+  researcher         Researcher      @relation(fields: [researcherId], references: [id])
+  title              String
+  surveyUrl          String
+  minAge             Int
+  maxAge             Int
+  region             String?
+  targetRespondents  Int
+  estimatedMinutes   Int
+  rewardPerResponse  Int
+  rewardPool         Int
+  platformFee        Int
+  processingCost     Int
+  totalCost          Int
+  payoutRatio        Float
+  status             ProjectStatus   @default(DRAFT)
+  participations     Participation[]
+  payments           Payment[]
+  ledgerEntries      LedgerEntry[]
+  createdAt          DateTime        @default(now())
 }
 
 model Payment {
-  id String @id @default(cuid())
-  projectId String
-  project SurveyProject @relation(fields:[projectId], references:[id])
-  provider String
-  providerRef String @unique
-  amount Int
-  status String
-  createdAt DateTime @default(now())
+  id          String        @id @default(cuid())
+  projectId   String
+  project     SurveyProject @relation(fields: [projectId], references: [id])
+  provider    String
+  providerRef String        @unique
+  amount      Int
+  status      String
+  createdAt   DateTime      @default(now())
 }
 
 model Participation {
-  id String @id @default(cuid())
-  projectId String
-  project SurveyProject @relation(fields:[projectId], references:[id])
-  respondentId String
-  respondent Respondent @relation(fields:[respondentId], references:[id])
-  status ParticipationStatus @default(STARTED)
+  id             String              @id @default(cuid())
+  projectId      String
+  project        SurveyProject       @relation(fields: [projectId], references: [id])
+  respondentId   String
+  respondent     Respondent          @relation(fields: [respondentId], references: [id])
+  status         ParticipationStatus @default(STARTED)
   completionCode String
-  reward Reward?
-  startedAt DateTime @default(now())
-  submittedAt DateTime?
-  verifiedAt DateTime?
+  reward         Reward?
+  startedAt      DateTime            @default(now())
+  submittedAt    DateTime?
+  verifiedAt     DateTime?
+
   @@unique([projectId, respondentId])
 }
 
 model Reward {
-  id String @id @default(cuid())
-  participationId String @unique
-  participation Participation @relation(fields:[participationId], references:[id])
-  respondentId String
-  respondent Respondent @relation(fields:[respondentId], references:[id])
-  amount Int
-  status RewardStatus @default(PENDING)
-  createdAt DateTime @default(now())
+  id              String        @id @default(cuid())
+  participationId String        @unique
+  participation   Participation @relation(fields: [participationId], references: [id])
+  respondentId    String
+  respondent      Respondent    @relation(fields: [respondentId], references: [id])
+  amount          Int
+  status          RewardStatus  @default(PENDING)
+  createdAt       DateTime      @default(now())
 }
 
 model LedgerEntry {
-  id String @id @default(cuid())
-  type LedgerType
-  direction LedgerDirection
-  amount Int
-  projectId String?
-  project SurveyProject? @relation(fields:[projectId], references:[id])
-  respondentId String?
-  respondent Respondent? @relation(fields:[respondentId], references:[id])
-  referenceId String
-  idempotencyKey String @unique
-  createdAt DateTime @default(now())
+  id             String          @id @default(cuid())
+  type           LedgerType
+  direction      LedgerDirection
+  amount         Int
+  projectId      String?
+  project        SurveyProject?  @relation(fields: [projectId], references: [id])
+  respondentId   String?
+  respondent     Respondent?     @relation(fields: [respondentId], references: [id])
+  referenceId    String
+  idempotencyKey String          @unique
+  createdAt      DateTime        @default(now())
 }
