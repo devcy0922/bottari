@@ -1,0 +1,2 @@
+import { NextResponse } from 'next/server';import { db } from '@/lib/db';
+export async function GET(){const [rewards,ledger]=await Promise.all([db.reward.findMany({orderBy:{createdAt:'desc'},take:20,include:{respondent:true,participation:{include:{project:true}}}}),db.ledgerEntry.findMany({orderBy:{createdAt:'desc'},take:50})]);return NextResponse.json({rewards,ledger,rewardTotal:rewards.reduce((a,r)=>a+r.amount,0)})}

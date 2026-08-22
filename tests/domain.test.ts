@@ -1,0 +1,3 @@
+import { describe,expect,it } from 'vitest';import { calculateProjectCost,isEligible } from '../lib/domain';
+describe('money model',()=>{it('keeps reward pool and fees explicit',()=>{const c=calculateProjectCost(1000,10,{platformFeeBps:500,processingFeeBps:300});expect(c).toEqual({rewardPool:10000,platformFee:500,processingCost:300,total:10800,payoutRatio:10000/10800})})});
+describe('matching',()=>{it('filters deterministically',()=>{expect(isEligible({minAge:20,maxAge:39,region:'서울'},{age:29,region:'서울'})).toBe(true);expect(isEligible({minAge:20,maxAge:39,region:'서울'},{age:41,region:'서울'})).toBe(false)})});
