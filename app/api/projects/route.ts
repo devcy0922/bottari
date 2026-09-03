@@ -15,6 +15,14 @@ export async function POST(req: Request) {
     const b = await req.json();
     const reward = Number(b.rewardPerResponse);
     const target = Number(b.targetRespondents);
+    // Input validation & sanitization guard
+    if (isNaN(reward) || reward <= 0) {
+      return NextResponse.json({ error: 'rewardPerResponse must be a positive number' }, { status: 400 });
+    }
+    if (isNaN(target) || target <= 0) {
+      return NextResponse.json({ error: 'targetRespondents must be a positive number' }, { status: 400 });
+    }
+
     const minAge = Number(b.minAge);
     const maxAge = Number(b.maxAge);
     const estimated = Number(b.estimatedMinutes);
